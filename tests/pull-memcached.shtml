@@ -1,0 +1,7 @@
+<html>
+    <head></head>
+    <body>
+        <h1>Memcached tests</h1>
+        <!--#include memcached="mod_memcached_include_tests" -->
+    </body>
+</html>
