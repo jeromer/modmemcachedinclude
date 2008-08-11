@@ -1,0 +1,95 @@
+What is this extension made for ?
+=================================
+
+This extension has been primarily created for a customer
+project this module had to be coupled with an eZ Publish
+extension called eZSI.
+
+Anyway this module may be used with any file that is pushed
+in Memcached and meant to be fetched from an SSI tag.
+
+How to compile this extension ?
+===============================
+You will have to install and compiler apr_memcache first.
+This module uses version 0.7.0 do not use older versions.
+apr_memcache may be downloaded here : 
+
+- http://www.outoforder.cc/projects/libs/apr_memcache/
+- http://www.outoforder.cc/downloads/apr_memcache/apr_memcache-0.7.0.tar.bz2
+
+Once apr_memcache is downloaded, extract it and compile it.
+
+Note the path where it has been installed, you will need it.
+
+Unfortunately I did not had time to create a configure script.
+I wish I had some spare time to fix this issue as soon as possible.
+
+In order to compile the extension you will have to edit the Makefile.
+
+Change the following contents : 
+
+::
+
+        builddir=.
+        top_srcdir=/usr/local/apache-2.2.9
+        top_builddir=/usr/local/apache-2.2.9
+        include /usr/local/apache-2.2.9/build/special.mk
+
+        #   the used tools
+        APXS=apxs
+        APACHECTL=apache2ctl
+
+        #   additional defines, includes and libraries
+        #DEFS=-DDEBUG_MEMCACHED_INCLUDE
+        DEFS=
+        INCLUDES=-I/usr/local/apache-2.2.9/include/apr_memcache-0
+        LIBS=-L/usr/local/apache-2.2.9/lib -lapr_memcache
+
+By the following :
+
+::
+
+        builddir=.
+        top_srcdir=/path/to/your/apache/installtion/directory
+        top_builddir=/path/to/your/apache/installation/directory
+        include /path/to/your/apache/installation/build/special.mk
+
+        #   the used tools
+        APXS=apxs
+        APACHECTL=apachectl
+
+        #   additional defines, includes and libraries
+        #DEFS=-DDEBUG_MEMCACHED_INCLUDE
+        DEFS=
+        INCLUDES=-I/path/to/apr_memcache/installation/directory/apr_memcache-0
+        LIBS=-L/path/to/your/apr_memcache/installation/directory/lib -lapr_memcache
+
+How to test this extension ?
+============================
+In order to test the extension you have to first compile
+the module and install it, once you are done you have to 
+launch test/push.php to store some contents in Memcached.
+You can configure your Memcached host by editing push.php
+
+After that you may create the following configuration
+for Apache : 
+
+::
+
+        LoadModule memcached_include_module modules/mod_memcached_include.so
+        <Directory /path/to/mod_memcached_include/tests/>
+                AddType text/html .shtml
+                AddOutputFilter INCLUDES .shtml
+                Options +Includes
+                MemcachedHost localhost:11211
+        </Directory>
+
+Once the file is stored in Memcached, you can ``test/pull-*.shtml``
+files.
+
+..
+   Local Variables:
+   mode: rst
+   fill-column: 79
+   End: 
+   vim: et syn=rst tw=79
