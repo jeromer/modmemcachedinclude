@@ -13,12 +13,20 @@ if( $cr = memcache_connect( MEMCACHED_HOST, MEMCACHED_PORT, MEMCACHED_TIMEOUT ) 
         $fileContents = 'SSI block added at ' . date( 'Y/m/d H:i:s', time(  ) );
         $flag = false;
 
-        //the file does not exists
-        if( !memcache_replace( $cr, $key, $fileContents, $flag, 0 ) )
+        for( $i = 1; $i < 3; $i++)
         {
-            if( !memcache_add( $cr, $key, $fileContents, $flag, 0 ) )
+            $finalKey = $key . '_' . $i;
+            $fileFinalContents = $fileContents . '::' . $i;
+
+            print( 'Adding file : ' . $finalKey . ' with contents '. $fileFinalContents . chr( 10 ) );
+
+            //the file does not exists
+            if( !memcache_replace( $cr, $finalKey, $fileFinalContents, $flag, 0 ) )
             {
-                print( 'Unable to add file' );
+                if( !memcache_add( $cr, $finalKey, $fileFinalContents, $flag, 0 ) )
+                {
+                    print( 'Unable to add file' );
+                }
             }
         }
 }
