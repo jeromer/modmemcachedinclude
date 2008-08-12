@@ -2,6 +2,10 @@
     <head></head>
     <body>
         <h1>Memcached tests</h1>
-        <!--#include memcached="mod_memcached_include_tests" -->
+        <!--#include file="mod_memcached_include_tests" -->
+        <br/>
+        <!--#include memcached="mod_memcached_include_tests_1" -->
+        <br/>
+        <!--#include memcached="mod_memcached_include_tests_2" -->
     </body>
 </html>
