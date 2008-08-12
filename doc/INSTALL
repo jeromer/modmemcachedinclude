@@ -1,11 +1,7 @@
 What is this extension made for ?
 =================================
 
-This extension has been primarily created for a customer
-project this module had to be coupled with an eZ Publish
-extension called eZSI.
-
-Anyway this module may be used with any file that is pushed
+This module may be used with any file that is pushed
 in Memcached and meant to be fetched from an SSI tag.
 
 How to compile this extension ?
