@@ -1725,9 +1725,6 @@ static apr_status_t handle_include(include_ctx_t *ctx, ap_filter_t *f,
 
         /* Fetching files from Memcached */
         if (tag[0] == 'm') {
-#ifdef DEBUG_MEMCACHED_INCLUDE
-            ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Found tag : %s", "memcached");
-#endif
             include_server_config *conf;
             apr_uint16_t flags;
             char *strkey = NULL;
@@ -1754,22 +1751,13 @@ static apr_status_t handle_include(include_ctx_t *ctx, ap_filter_t *f,
                                                                value_len,
                                                                ctx->pool,
                                                                f->c->bucket_alloc));
+                return APR_SUCCESS;
             }
-            
-            if (rv == APR_NOTFOUND) {
-                ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r, "File not found with key : %s", strkey);
-                SSI_CREATE_ERROR_BUCKET(ctx, f, bb);
+            else {
+                error_fmt = "Unable to fetch file with key '%s' in parsed file %s";
             }
-            
-            if (rv != APR_SUCCESS) {
-                ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r, "Unable to fetch the file with key : %s", strkey);
-                SSI_CREATE_ERROR_BUCKET(ctx, f, bb);
-            }
-
-            return APR_SUCCESS;
         }
-
-        if (tag[0] == 'f') {
+        else if (tag[0] == 'f') {
             char *newpath;
             apr_status_t rv;
 
@@ -3994,12 +3982,6 @@ static int include_post_config(apr_pool_t *p, apr_pool_t *plog,
     if(rv != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_DEBUG, rv, s, "Unable to create memcached structure");
     }
-
-#ifdef DEBUG_MEMCACHED_INCLUDE
-    else {
-        ap_log_error(APLOG_MARK, APLOG_DEBUG, rv, s, "Memcached struct successfully created");
-    }    
-#endif
 
     svr = (memcached_include_server_t *)conf->servers->elts;
 
