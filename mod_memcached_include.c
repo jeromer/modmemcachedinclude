@@ -127,7 +127,7 @@ typedef struct {
 } memcached_include_server_t;
 
 #define DEFAULT_MAX_SERVERS 1
-#define DEFAULT_MIN 5
+#define DEFAULT_MIN_CONN 1
 #define DEFAULT_SMAX 10
 #define DEFAULT_MAX 15
 #define DEFAULT_TTL 10
@@ -3800,7 +3800,7 @@ static void *create_includes_server_config(apr_pool_t *p, server_rec *server)
     result->max_servers = DEFAULT_MAX_SERVERS;
     result->min_size    = DEFAULT_MIN_SIZE;
     result->max_size    = DEFAULT_MAX_SIZE;
-    result->conn_min    = DEFAULT_MIN;
+    result->conn_min    = DEFAULT_MIN_CONN;
     result->conn_smax   = DEFAULT_SMAX;
     result->conn_max    = DEFAULT_MAX;
     result->conn_ttl    = DEFAULT_TTL;
@@ -3834,6 +3834,33 @@ static const char *set_memcached_host(cmd_parms *cmd, void *mconfig, const char 
     memcached_server->port = apr_atoi64(port);
 
     /* ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, cmd->server, "Arg : %s Host : %s, Port : %d", arg, memcached_server->host, memcached_server->port); */
+
+    return NULL;
+}
+
+static const char *set_memcached_timeout(cmd_parms *cmd, void *mconfig, const char *arg)
+{
+    include_server_config *conf = ap_get_module_config(cmd->server->module_config, &memcached_include_module);
+
+    conf->conn_ttl = atoi(arg);
+
+    return NULL;
+}
+
+static const char *set_memcached_soft_max_conn(cmd_parms *cmd, void *mconfig, const char *arg)
+{
+    include_server_config *conf = ap_get_module_config(cmd->server->module_config, &memcached_include_module);
+
+    conf->conn_smax = atoi(arg);
+
+    return NULL;
+}
+
+static const char *set_memcached_hard_max_conn(cmd_parms *cmd, void *mconfig, const char *arg)
+{
+    include_server_config *conf = ap_get_module_config(cmd->server->module_config, &memcached_include_module);
+
+    conf->conn_max = atoi(arg);
 
     return NULL;
 }
@@ -3962,19 +3989,19 @@ static int include_post_config(apr_pool_t *p, apr_pool_t *plog,
     
     conf = (include_server_config *)ap_get_module_config(s->module_config, &memcached_include_module);
 
-    /* ap_log_error(APLOG_MARK, APLOG_INFO, 0, s, "Function: %pp, max_servers: %d", apr_memcache_create, conf->max_servers); */
-
     rv = apr_memcache_create(p, conf->max_servers, 0, &(conf->memcached));
 
     if(rv != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_DEBUG, rv, s, "Unable to create memcached structure");
-    } else {
+    }
+
+#ifdef DEBUG_MEMCACHED_INCLUDE
+    else {
         ap_log_error(APLOG_MARK, APLOG_DEBUG, rv, s, "Memcached struct successfully created");
     }    
+#endif
 
     svr = (memcached_include_server_t *)conf->servers->elts;
-
-    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, s, "conf->servers->nelts : %d", conf->servers->nelts);
 
     for(i = 0; i < conf->servers->nelts; i++) {
 
@@ -3983,7 +4010,7 @@ static int include_post_config(apr_pool_t *p, apr_pool_t *plog,
                                         conf->conn_max, conf->conn_ttl,
                                         &(svr[i].server));
         if(rv != APR_SUCCESS) {
-            ap_log_error(APLOG_MARK, APLOG_DEBUG, rv, s, "Unable to create memcache server for %s:%d", svr[i].host, svr[i].port);
+            ap_log_error(APLOG_MARK, APLOG_DEBUG, rv, s, "Unable to create memcache server for %s:%d is Memcached running ?", svr[i].host, svr[i].port);
             continue;
         }    
         
@@ -3993,7 +4020,9 @@ static int include_post_config(apr_pool_t *p, apr_pool_t *plog,
             ap_log_error(APLOG_MARK, APLOG_DEBUG, rv, s, "Unable to add memcache server for %s:%d", svr[i].host, svr[i].port);
         }    
 
-        ap_log_error(APLOG_MARK, APLOG_DEBUG, rv, s, "Memcached server successfully created %s:%d", svr[i].host, svr[i].port);
+#ifdef DEBUG_MEMCACHED_INCLUDE
+        ap_log_error(APLOG_MARK, APLOG_DEBUG, rv, s, "Memcached server successfully created %s:%d %d %d %d", svr[i].host, svr[i].port, conf->conn_smax, conf->conn_max, conf->conn_ttl);
+#endif
     }
 
     return OK;
@@ -4003,10 +4032,16 @@ static const command_rec includes_cmds[] =
 {
     AP_INIT_TAKE1("MemcachedHost", set_memcached_host, NULL, OR_OPTIONS,
                   "Memcached hostname or IP address with portnumber, like this, 127.0.0.1:11211"),
-    /*
-    AP_INIT_TAKE1("MemcachedTimeOut", set_memcached_timeout, NULL, OR_OPTIONS,
+    
+    AP_INIT_TAKE1("MemcachedTTL", set_memcached_timeout, NULL, OR_OPTIONS,
                   "Memcached timeout (in seconds)"),
-    */
+    
+    AP_INIT_TAKE1("MemcachedSoftMaxConn", set_memcached_soft_max_conn, NULL, OR_OPTIONS,
+                  "Memcached low max connexions"),
+    
+    AP_INIT_TAKE1("MemcachedHardMaxConn", set_memcached_hard_max_conn, NULL, OR_OPTIONS,
+                  "Memcached high maximum connexions"),
+
     AP_INIT_TAKE1("XBitHack", set_xbithack, NULL, OR_OPTIONS,
                   "Off, On, or Full"),
     AP_INIT_TAKE1("SSIErrorMsg", set_default_error_msg, NULL, OR_ALL,
@@ -4039,6 +4074,7 @@ static void register_hooks(apr_pool_t *p)
     ap_hook_fixups(include_fixup, NULL, NULL, APR_HOOK_LAST);
     ap_register_output_filter("INCLUDES", includes_filter, includes_setup,
                               AP_FTYPE_RESOURCE);
+    /* ap_hook_handler(memcached_include_handler, NULL, NULL, APR_HOOK_MIDDLE); */
 }
 
 module AP_MODULE_DECLARE_DATA memcached_include_module =
