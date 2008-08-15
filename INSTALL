@@ -17,48 +17,29 @@ Once apr_memcache is downloaded, extract it and compile it.
 
 Note the path where it has been installed, you will need it.
 
-Unfortunately I did not had time to create a configure script.
-I wish I had some spare time to fix this issue as soon as possible.
-
-In order to compile the extension you will have to edit the Makefile.
-
-Change the following contents : 
+Run 
 
 ::
 
-        builddir=.
-        top_srcdir=/usr/local/apache-2.2.9
-        top_builddir=/usr/local/apache-2.2.9
-        include /usr/local/apache-2.2.9/build/special.mk
+        ./autogen.sh
+        ./configure
+        make
+        sudo make install
 
-        #   the used tools
-        APXS=apxs
-        APACHECTL=apache2ctl
+Depending on your system and your apr_memcache installation path
+you may need to specify the following arguments for the configure script:
 
-        #   additional defines, includes and libraries
-        #DEFS=-DDEBUG_MEMCACHED_INCLUDE
-        DEFS=
-        INCLUDES=-I/usr/local/apache-2.2.9/include/apr_memcache-0
-        LIBS=-L/usr/local/apache-2.2.9/lib -lapr_memcache
-
-By the following :
+--with-apxs=/path/to/apache/bin/apxs
+--with-apr-memcache=/path/to/apr_memcache/
+       
+For example here is my configuration
 
 ::
 
-        builddir=.
-        top_srcdir=/path/to/your/apache/installtion/directory
-        top_builddir=/path/to/your/apache/installation/directory
-        include /path/to/your/apache/installation/build/special.mk
+        ./configure --with-apxs=/usr/local/apache-2.2.9/bin/apxs \
+                    --with-apr-memcache=/opt/local/
 
-        #   the used tools
-        APXS=apxs
-        APACHECTL=apachectl
-
-        #   additional defines, includes and libraries
-        #DEFS=-DDEBUG_MEMCACHED_INCLUDE
-        DEFS=
-        INCLUDES=-I/path/to/apr_memcache/installation/directory/apr_memcache-0
-        LIBS=-L/path/to/your/apr_memcache/installation/directory/lib -lapr_memcache
+Once everything is compiled, restart Apache
 
 How to test this extension ?
 ============================
