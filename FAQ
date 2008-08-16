@@ -1,0 +1,13 @@
+When compiling apr_memcache, I get the following error message : "unable to infer tagged configuration"
+------------------------------------------------------------------------------------------------------
+
+Open configure.ac and change the following line
+
+LIBTOOL="`${APR_CONFIG} --apr-libtool`"
+
+By the following one : 
+
+LIBTOOL="`${APR_CONFIG} --apr-libtool` --tag=CC"
+
+And then run 'autoconf'.
+Run make clean and restart the configuration process
