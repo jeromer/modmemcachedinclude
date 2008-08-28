@@ -11,3 +11,5 @@ LIBTOOL="`${APR_CONFIG} --apr-libtool` --tag=CC"
 
 And then run 'autoconf'.
 Run make clean and restart the configuration process
+
+Note: this advice applies for mod_memcached_include as well
