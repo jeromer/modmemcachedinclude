@@ -6,17 +6,6 @@ in Memcached and meant to be fetched from an SSI tag.
 
 How to compile this extension ?
 ===============================
-You will have to install and compiler apr_memcache first.
-This module uses version 0.7.0 do not use older versions.
-apr_memcache may be downloaded here : 
-
-- http://www.outoforder.cc/projects/libs/apr_memcache/
-- http://www.outoforder.cc/downloads/apr_memcache/apr_memcache-0.7.0.tar.bz2
-
-Once apr_memcache is downloaded, extract it and compile it.
-
-Note the path where it has been installed, you will need it.
-
 Run 
 
 ::
@@ -37,7 +26,13 @@ For example here is my configuration
 ::
 
         ./configure --with-apxs=/usr/local/apache-2.2.9/bin/apxs \
-                    --with-apr-memcache=/opt/local/
+                    --with-apr-memcache=/opt/local
+
+Where apr_memcache.h is located in :
+
+::
+
+        /opt/local/include/apr_memcache-0/apr_memcache.h
 
 Once everything is compiled, restart Apache
 
@@ -59,11 +54,45 @@ for Apache :
                 AddOutputFilter INCLUDES .shtml
                 Options +Includes
                 MemcachedHost localhost:11211
+                MemcachedSoftMaxConn 10
+                MemcachedHardMaxConn 15
+                MemcachedTTL 10
         </Directory>
 
-Once the file is stored in Memcached, you can ``test/pull-*.shtml``
-files.
+You may also try this one
 
+::
+
+        LoadModule memcached_include_module modules/mod_memcached_include.so
+        <Directory /path/to/mod_memcached_include/tests/>
+                AddType text/html .shtml
+                Options Indexes FollowSymLinks +Includes
+                FilterDeclare SSI
+                FilterProvider SSI INCLUDES resp=Content-Type $text/html
+                FilterChain SSI
+                MemcachedHost localhost:11211
+                MemcachedSoftMaxConn 10
+                MemcachedHardMaxConn 15
+                MemcachedTTL 10
+        </Directory>
+
+Once the file is stored in Memcached, you can ``test/pull-*.shtml`` files.
+
+
+Compiling on Debian
+===================
+
+In order to compile this module for Debian, you will need the following packages :
+
+- apache2-mpm-prefork
+- libapr1-dev
+- libaprutil1-dev
+- apach2-prefork-dev
+
+::
+
+        sudo apt-get install apache2-mpm-prefork libapr1-dev libaprutil1-dev apache2-prefork-dev
+        
 ..
    Local Variables:
    mode: rst

@@ -29,7 +29,7 @@ prefix=${AP_PREFIX}
 LIBTOOL="`${APR_CONFIG} --apr-libtool`"
 AC_SUBST(LIBTOOL)
 
-MODULE_CFLAGS="${APXS_CFLAGS} ${AP_INCLUDES} ${APR_INCLUDES} ${APU_INCLUDES}"
+MODULE_CFLAGS="${APXS_CFLAGS} ${AP_INCLUDES} ${APR_INCLUDES} ${APU_INCLUDES} ${APR_MEMCACHE_CFLAGS}"
 AC_SUBST(MODULE_CFLAGS)
 
 MODULE_LDFLAGS=" `${APR_CONFIG} --link-libtool` `${APU_CONFIG} --link-libtool`"
@@ -41,11 +41,3 @@ AC_SUBST(BIN_LDFLAGS)
 dnl this should be a list to all of the makefiles you expect to be generated
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
-
-dnl whatever you want here, or nothing
-echo "---"
-echo "Configuration summary for mod_memcached_include"
-echo ""
-echo "   * Apache Modules Directory:    $AP_LIBEXECDIR"
-echo ""
-echo "---"
