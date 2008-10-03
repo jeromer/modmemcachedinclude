@@ -3,13 +3,43 @@ When compiling apr_memcache, I get the following error message : "unable to infe
 
 Open configure.ac and change the following line
 
-LIBTOOL="`${APR_CONFIG} --apr-libtool`"
+::
+
+        LIBTOOL="`${APR_CONFIG} --apr-libtool`"
 
 By the following one : 
 
-LIBTOOL="`${APR_CONFIG} --apr-libtool` --tag=CC"
+::
 
-And then run 'autoconf'.
+        LIBTOOL="`${APR_CONFIG} --apr-libtool` --tag=CC"
+
+And then run `autoconf`.
 Run make clean and restart the configuration process
 
-Note: this advice applies for mod_memcached_include as well
+.. Note::
+If you do not feel comfortable in editing configure.ac
+or do not think it is safe you may also apply the configure.diff
+patch available in patches/configure.diff.
+In order to test if the patch is applicable you can run the following
+command
+
+::
+
+	patch --dry-run --verbose -p0 < patches/configure.diff
+
+If everything looks OK, then you can appy the patch
+
+::
+
+
+	patch --verbose -p0 < patches/configure.diff
+
+.. Note::
+This advice applies for mod_memcached_include as well
+
+..
+   Local Variables:
+   mode: rst
+   fill-column: 79
+   End: 
+   vim: et syn=rst tw=79
