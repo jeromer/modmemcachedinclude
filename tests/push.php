@@ -1,7 +1,7 @@
 <?php
-define( MEMCACHED_HOST, '127.0.0.1' );
-define( MEMCACHED_PORT, '11211' );
-define( MEMCACHED_TIMEOUT, '10' );
+define( 'MEMCACHED_HOST', '127.0.0.1' );
+define( 'MEMCACHED_PORT', '11211' );
+define( 'MEMCACHED_TIMEOUT', '10' );
 
 if( !extension_loaded( 'memcache' ) )
 {
