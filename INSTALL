@@ -91,7 +91,7 @@ In order to compile this module for Debian, you will need the following packages
 
 ::
 
-        sudo apt-get install apache2-mpm-prefork libapr1-dev libaprutil1-dev apache2-prefork-dev
+        sudo apt-get install apache2-mpm-prefork libapr1-dev libaprutil1-dev apache2-prefork-dev libtool
         
 ..
    Local Variables:
