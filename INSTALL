@@ -26,15 +26,24 @@ For example here is my configuration
 ::
 
         ./configure --with-apxs=/usr/local/apache-2.2.9/bin/apxs \
-                    --with-apr-memcache=/opt/local
+                    --with-apr-memcache=/usr/local/apache-2.2.9
 
 Where apr_memcache.h is located in :
 
 ::
 
-        /opt/local/include/apr_memcache-0/apr_memcache.h
+        /usr/local/apache-2.2.9/include/apr_memcache.h
 
 Once everything is compiled, restart Apache
+
+Loading the module
+==================
+
+Edit your httpd.conf and add the following line : 
+
+::
+
+        LoadModule ssi_include_memcached_module modules/ssi_include_memcached.so
 
 How to test this extension ?
 ============================
@@ -48,35 +57,51 @@ for Apache :
 
 ::
 
-        LoadModule memcached_include_module modules/mod_memcached_include.so
         <Directory /path/to/mod_memcached_include/tests/>
                 AddType text/html .shtml
-                AddOutputFilter INCLUDES .shtml
-                Options +Includes
-                MemcachedHost localhost:11211
-                MemcachedSoftMaxConn 10
-                MemcachedHardMaxConn 15
-                MemcachedTTL 10
-        </Directory>
-
-You may also try this one
-
-::
-
-        LoadModule memcached_include_module modules/mod_memcached_include.so
-        <Directory /path/to/mod_memcached_include/tests/>
-                AddType text/html .shtml
+                DefaultType text/html
                 Options Indexes FollowSymLinks +Includes
                 FilterDeclare SSI
                 FilterProvider SSI INCLUDES resp=Content-Type $text/html
                 FilterChain SSI
-                MemcachedHost localhost:11211
+                MemcachedHost 127.0.0.1:11211
                 MemcachedSoftMaxConn 10
                 MemcachedHardMaxConn 15
                 MemcachedTTL 10
         </Directory>
 
+Or in a VirtualHost
+
+::
+        <VirtualHost *:80>
+                ServerName example.com
+                DocumentRoot /path/to/documentroot/
+
+                #
+                # mod_memcached_include configuration
+                #
+                <Directory /path/to/documentroot/>
+                        AddType .shtml text/html
+                        DefaultType text/html
+                        Options Indexes FollowSymLinks +Includes
+                        FilterDeclare SSI
+                        FilterProvider SSI INCLUDES resp=Content-Type $text/html
+                        FilterChain SSI
+
+                        MemcachedHost localhost:11211
+                        MemcachedSoftMaxConn 100
+                        MemcachedHardMaxConn 150
+                        MemcachedTTL 100
+                </Directory>
+        </VirtualHost>
+        
 Once the file is stored in Memcached, you can ``test/pull-*.shtml`` files.
+If you have PHP installed, you can also run ``test/backgendgen.php`` but this
+require the pecl_memcache extension, available via the follwiing command : 
+
+::
+
+        pecl install memcache
 
 
 Compiling on Debian
