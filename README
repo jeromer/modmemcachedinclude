@@ -1,7 +1,11 @@
 History of this project.
 
-Date : 2009/05/06, 2.00 pm
+Date : 2009/05/06, 4.00 pm
+--------------------------
+The contents of branches/ssi_include_memcached is now merged in trunk
 
+Date : 2009/05/06, 2.00 pm
+-------------------------
 At the very beginning this module was made for a customer.
 But he decided not to use this module for some reason.
 
@@ -15,4 +19,4 @@ After a few months I decided to rewrite everything because it looked too inelega
 This is why I decided to create the "ssi_include_memcached" branche which is the future
 of this project, I changed its name as I found "ssi_include_memcached" to be more relevant and self explanatory.
 
-This branche will be integrated back in trunk in a near future.
+This branch will be integrated back in trunk in a near future.
