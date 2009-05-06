@@ -1,0 +1,18 @@
+History of this project.
+
+Date : 2009/05/06, 2.00 pm
+
+At the very beginning this module was made for a customer.
+But he decided not to use this module for some reason.
+
+So I decided to open this project to anyone interested by SSIs and Memcached.
+
+At the beginning the module was sort of a big patch integrated directly
+into mod_include, this is why it was required to disable mod_include in order
+to use it.
+
+After a few months I decided to rewrite everything because it looked too inelegant to me.
+This is why I decided to create the "ssi_include_memcached" branche which is the future
+of this project, I changed its name as I found "ssi_include_memcached" to be more relevant and self explanatory.
+
+This branche will be integrated back in trunk in a near future.

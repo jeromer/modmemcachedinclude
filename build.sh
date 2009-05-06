@@ -4,11 +4,9 @@ APR_MEMCACHE=/usr/local/apache-2.2.9
 APXS_PATH=/usr/local/apache-2.2.9/bin/apxs
 APACHECTL_PATH=/usr/local/apache-2.2.9/bin/apachectl
 
-# enable debug informations
-# export CFLAGS="-D DEBUG_MEMCACHED_INCLUDE"
+make clean
 
 ./autogen.sh && \
-make clean && \
 ./configure --with-apr-memcache=$APR_MEMCACHE --with-apxs=$APXS_PATH && \
 make && \
 make install && \
