@@ -34,7 +34,7 @@ fi
 
 for x in $test_paths ; do
     AC_MSG_CHECKING([for apr_memcache library in ${x}])
-    if test -f ${x}/include/apr_memcache-0/apr_memcache.h; then
+    if test -f ${x}/include/apr_memcache.h; then
         AC_MSG_RESULT([yes])
         APR_MEMCACHE_LIBS="-R${x}/lib -L${x}/lib -lapr_memcache"
         APR_MEMCACHE_CFLAGS="-I${x}/include/apr_memcache-0"
@@ -56,4 +56,3 @@ else
   ifelse([$1], , , [$1]) 
 fi 
 ])
-
